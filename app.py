@@ -110,8 +110,8 @@ def process_pdf_based_on_template(pdf_file, template_version):
     return df,export_name
 
 def main():
-    st.set_page_config(page_title="PDF Convert", page_icon="⚡" )
-    st.title("Welcome to MyCAF PDF Convert!")
+    st.set_page_config(page_title="PDF Converter", page_icon="⚡" )
+    st.title("Welcome to MyCAF PDF Converter!")
     
     uploaded_file = st.file_uploader("Upload a PDF file", type=["pdf"])
     
