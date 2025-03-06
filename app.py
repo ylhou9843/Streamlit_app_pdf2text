@@ -106,6 +106,7 @@ def process_pdf_based_on_template(pdf_file, template_version):
         base_path = os.path.splitext(pdf_file.name)[0]
         export_name = f"{base_path}_{formatted_date}"
 
+
     return df,export_name
 
 def main():
