@@ -1,7 +1,4 @@
 streamlit
-io
-re
-pandas
 PyPDF2
+pandas
 numpy
-os
