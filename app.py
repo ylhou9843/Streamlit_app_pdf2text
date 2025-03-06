@@ -1,10 +1,6 @@
 import streamlit as st
 import io
 import re
-import pytesseract
-from PIL import Image
-from pdf2image import convert_from_path
-import pdfplumber
 import pandas as pd
 import PyPDF2
 import numpy as np
