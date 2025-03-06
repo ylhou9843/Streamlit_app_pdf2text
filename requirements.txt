@@ -1,11 +1,6 @@
 streamlit
-PyPDF2
 io
 re
-pytesseract
-PIL
-pdf2image
-pdfplumber
 pandas
 PyPDF2
 numpy
