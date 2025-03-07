@@ -113,42 +113,65 @@ def main():
     st.set_page_config(page_title="PDF Converter", page_icon="⚡" )
     st.title("Welcome to MyCAF PDF Converter!")
     
+    # File uploader
     uploaded_file = st.file_uploader("Upload a PDF file", type=["pdf"])
-    
+
+    # Template selection
     template_versions = ["GSC", "Core_Mark"]
     selected_version = st.selectbox("Select Template Version", template_versions)
 
-    # # Input for file name
-    # file_name = os.path.splitext(uploaded_file.name)[0]
-    # download_file_name = st.text_input("Enter file name for download (without extension)", "extracted_data")
+    # Reset session state when a new file is uploaded or removed
+    if uploaded_file is None or uploaded_file.name != st.session_state.get("last_uploaded_file"):
+        st.session_state.df = None
+        st.session_state.download_file_name = "extracted_data"
+        st.session_state.last_uploaded_file = uploaded_file.name if uploaded_file else None
 
-    df=None
-    
+    # Process PDF when "Transform PDF" is clicked
     if uploaded_file is not None:
         if st.button("Transform PDF"):
-            
-            df,export_name = process_pdf_based_on_template(uploaded_file, selected_version)
-            st.write("Extracted Data:")
-            st.dataframe(df)
-            
+            df, export_name = process_pdf_based_on_template(uploaded_file, selected_version)
+
+            # Store data & filename in session state
+            st.session_state.df = df
+            st.session_state.download_file_name = export_name  
+
             st.success("PDF transformed successfully!")
 
-            # Input for file name
-            # file_name = os.path.splitext(uploaded_file.name)[0]
-            download_file_name = st.text_input("Enter file name for download (without extension)", export_name)
+    # Ensure extracted data remains visible after transformation
+    if st.session_state.df is not None:
+        st.write("Extracted Data:")
+        st.dataframe(st.session_state.df)
 
-            output = io.BytesIO()
-            with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-                df.to_excel(writer, index=False, sheet_name="Extracted Data")
-                writer.close()
-            output.seek(0)
-            
-            st.download_button(
-                label="Download as Excel",
-                data=output,
-                file_name=f"{download_file_name}.xlsx",
-                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-            )
+        # Editable filename input that updates automatically
+        def update_filename():
+            st.session_state.download_file_name = st.session_state.temp_filename
+
+        st.text_input(
+            "Enter file name for download (without extension)", 
+            value=st.session_state.download_file_name, 
+            key="temp_filename",
+            on_change=update_filename
+        )
+
+        # Notice for the user
+        st.caption("ℹ️ Press Enter to apply the new file name before downloading.")
+
+        # Generate downloadable Excel file
+        output = io.BytesIO()
+        with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+            st.session_state.df.to_excel(writer, index=False, sheet_name="Extracted Data")
+            writer.close()
+        output.seek(0)
+
+        # Download button with auto-saved filename
+        st.download_button(
+            label="Download as Excel",
+            data=output,
+            file_name=f"{st.session_state.download_file_name}.xlsx",
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+
+
 
 if __name__ == "__main__":
     main()
